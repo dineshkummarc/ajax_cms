@@ -81,7 +81,7 @@ function mpIndex(m) {
 function load_pages(url) {
 	url = url.replace(/\/$/,''); // Remove trailing slash from starting point url
 	pages_count++;
-	$.get( url, function( data ) {
+	$.get( url+"/", function( data ) {
 		var f;
 		var rows = $(data).find('tr');
 		for (i = 3; i < rows.length - 1; i++) {
@@ -140,7 +140,7 @@ function load_pages(url) {
 function load_images(url) {
 	url = url.replace(/\/$/,''); // Remove trailing slash from starting point url
 	images_count++;
-	$.get( url, function( data ) {
+	$.get( url+"/", function( data ) {
 		var f;
 		var rows = $(data).find('tr');
 		for (i = 3; i < rows.length - 1; i++) {
@@ -246,14 +246,14 @@ function process_page(sdata) {
 	
 	// Convert stuff in {{ }} (helpers)
 	d = d.replace(/{{.*}}/gi, function myFunction(x){
-		var pieces = x.replace(/{{/g,'').replace(/}}/g,'').split('|');
+		var pieces = x.replace(/{{/g,'').replace(/}}/g,'').replace(/&gt;/g,'>').split('|');
 		var parts = [];
 		var attributes = [];
 		var attribute_string = ""
 		
 		// separate parts and attributes
 		for (var i=0; i<pieces.length; i++) {
-			if (/=&gt;/.test(pieces[i])){
+			if (/=>/.test(pieces[i])){
 				attributes.push(pieces[i]);
 			} else {
 				parts.push(pieces[i]);
@@ -262,7 +262,7 @@ function process_page(sdata) {
 		
 		// Convert attributes to string attr => value becomes attr='value'
 		for (var i=0; i<attributes.length; i++){
-			var apieces = attributes[i].split('=&gt;');
+			var apieces = attributes[i].split('=>');
 			attributes[i] = apieces[0].trim()+"=\""+apieces[1].trim()+"\"";
 		}
 		attributes_string = attributes.join(" ");
@@ -534,8 +534,9 @@ function loadInsert(fname,insert_location,allow_scripts,callback) {
 				if (!allow_scripts) {insert_contents = removeScripts(insert_contents);}
 
 				// Insert the contents of each file into data -- invalidate insertion patterns in content of replacement file until async is done.
-				data = data.replace(insert_location,insert_contents.replace(/{{/,'@@@@@').replace(/}}/,'#####'))
-				
+				// data = data.replace(insert_location,insert_contents.replace(/{{/,'@@@@@').replace(/}}/,'#####'))
+				data = data.replace(insert_location,insert_contents) // the above broke blogs... cant't remember why it was there.
+								
 				// Run Callback if it exists
 				if (callback && typeof(callback) === "function") {callback();}	
 			});
@@ -581,6 +582,23 @@ function processInserts(callback) {
 // Define functions for load transitions.
 function loadPageBasic(data,url) {
 	$("main").html( data );
+}
+
+function loadPageFade(data,url) {
+	$("#b").html( data )
+	if (url != "./pages/menus/00-Home.html") {
+		$("#undermenu").html("")
+	}
+	in_transition = true;
+	$("#a").hide("fade", { }, 500);
+	$("#b").show("fade", { complete: function(){
+			$("#b").html( data )
+			in_transition = false;
+			current_page = url;
+			$("#a").html($('#b').html());
+			$("#a").show();
+			$("#b").hide();
+	}}, 500);
 }
 
 function loadPageSlide(data,url) {
@@ -658,6 +676,9 @@ function loadPage(url,save) {
 						case 'slide':
 							loadPageSlide(data,url);
 							break;
+							case 'fade':
+								loadPageFade(data,url);
+								break;
 						default:
 							loadPageBasic(data,url);
 					}
@@ -674,7 +695,11 @@ function loadPage(url,save) {
 					$('body').attr("id", ajaxcms_page_id);
 					
 					//Google Analytics
-					ga('send', 'pageview', location.href)
+					this_parts = url.split('/')
+					this_page = this_parts[this_parts.length-1].replace(/\..*$/g,'').replace(/^\d+-/g,'')
+					$('title').html(this_page)
+
+					//ga('send', 'pageview', location.href)
 					
 				});			
 			});
@@ -704,7 +729,8 @@ function makemenu() {
 	    	filename = filename.replace(/\d+\-/,'');       			// Remove any digits followed by a dash at the beginning (use for sort)
 	    	filename = filename.replace(/\.html$/,'');     			// Remove .html from end.
 	    	filename = filename.replace(/\.md$/,''); 				// Remove .md from end.
-	    	filename = filename.replace(/_/g,' ');					// Replace underscores with spaces.
+			var idname = filename;
+			filename = filename.replace(/_/g,' ');					// Replace underscores with spaces.
 	    	
 	    	classname = fileToClass(file);
 	
@@ -713,13 +739,13 @@ function makemenu() {
 	    		$('#menu').append(
 	    			'<li class="dropdown '+classname+'"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">'
 	    			+ filename.replace(/\/$/,'')
-	    			+ '<span class="caret"></span></a><ul class="dropdown-menu" id="'+filename+'"></ul></li>'
+	    			+ '<span class="caret"></span></a><ul class="dropdown-menu" id="'+idname+'"></ul></li>'
 	    		);
 	    	} else {
 	    		// It is a file
-	    		var parts = filename.split('/');
+	    		var parts = idname.split('/');
 	    		if (parts.length > 1) {
-	    			$('#'+parts[0]+'\\\/').append('<li class="file '+classname+'"><a onclick="loadPage(\''+file.replace(/\//g,'\\\/')+'\');">'+parts[1].replace(/\d+\-/,'')+'</a></li>');
+	    			$('#'+parts[0]+'\\\/').append('<li class="file '+classname+'"><a onclick="loadPage(\''+file.replace(/\//g,'\\\/')+'\');">'+parts[1].replace(/\d+\-/,'').replace(/_/g,' ')+'</a></li>');
 	    		} else {
 					$('#menu').append('<li class="file '+classname+'"><a onclick="loadPage(\''+file.replace(/\//g,'\\\/')+'\');">'+filename+'</a></li>');
 	    		}
