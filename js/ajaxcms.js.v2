@@ -1,6 +1,6 @@
 /////////////////////////////////  CONFIGURATION   ///////////////////////////////
 		
-var load_transition = "slide";
+var load_transition = "fade";
 
 $.ajaxSetup({ cache: false });
 
@@ -106,16 +106,16 @@ function load_pages(url) {
 			// if there is a splash page then display
 			if (pages.indexOf("./pages/splash.html") && !param('page')) {
 				$.get("./pages/splash.html",function(data){
-					$(".container").before("<div id='splash' style='width:100%; position:absolute;'>"+data+"</div>");
+					$("#container").before("<div id='splash' style='width:100%; position:absolute;'>"+data+"</div>");
 				});
 				
 				setTimeout(function(){
 					$('#splash').fadeOut(2000);
-					$('.container').fadeIn(1000);
+					$('#container').fadeIn(1000);
 				},ajaxcms_splash_time);	
 				
 			} else {
-				$('.container').fadeIn(1000)
+				$('#container').fadeIn(1000)
 			}
 			
 			// Load the page in the params if specified, first menu page otherwise.
@@ -168,7 +168,7 @@ function load_images(url) {
 function load_themes(url) {
 	url = url.replace(/\/$/,''); // Remove trailing slash from starting point url
 	images_count++;
-	$.get( url + "/", function( data ) {
+	$.get( url, function( data ) {
 		var f;
 		var rows = $(data).find('tr');
 		for (i = 3; i < rows.length - 1; i++) {
@@ -490,7 +490,6 @@ function pre_process_page(sdata) {
 				output += "<div class='blog_entry' data-url='"+blog_list[i].url+"' onclick=\"loadPage('"+blog_list[i].url+"')\">"
 				output += "<h1>"+blog_list[i].name+"</h1><time>"+blog_list[i].date.toLocaleDateString()+"</time><div class='blog_content'>\n{{insert | "+blog_list[i].url+" | false}}\n</div></div>"
 			}
-			
 			return "<div "+attributes_string+" class='blog'>\n"+output+"</div>"
 		}
 		
@@ -536,7 +535,7 @@ function loadInsert(fname,insert_location,allow_scripts,callback) {
 				// Insert the contents of each file into data -- invalidate insertion patterns in content of replacement file until async is done.
 				// data = data.replace(insert_location,insert_contents.replace(/{{/,'@@@@@').replace(/}}/,'#####'))
 				data = data.replace(insert_location,insert_contents) // the above broke blogs... cant't remember why it was there.
-								
+				
 				// Run Callback if it exists
 				if (callback && typeof(callback) === "function") {callback();}	
 			});
@@ -676,9 +675,9 @@ function loadPage(url,save) {
 						case 'slide':
 							loadPageSlide(data,url);
 							break;
-							case 'fade':
-								loadPageFade(data,url);
-								break;
+						case 'fade':
+							loadPageFade(data,url);
+							break;
 						default:
 							loadPageBasic(data,url);
 					}
@@ -728,9 +727,9 @@ function makemenu() {
 	    	filename = filename.replace(/\.\/pages\/menus\//,'');   // Remove ./pages from beginning
 	    	filename = filename.replace(/\d+\-/,'');       			// Remove any digits followed by a dash at the beginning (use for sort)
 	    	filename = filename.replace(/\.html$/,'');     			// Remove .html from end.
-	    	filename = filename.replace(/\.md$/,''); 				// Remove .md from end.
+			filename = filename.replace(/\.md$/,''); 				// Remove .md from end.
 			var idname = filename;
-			filename = filename.replace(/_/g,' ');					// Replace underscores with spaces.
+	    	filename = filename.replace(/_/g,' ');					// Replace underscores with spaces.
 	    	
 	    	classname = fileToClass(file);
 	
