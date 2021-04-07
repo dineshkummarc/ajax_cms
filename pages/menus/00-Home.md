@@ -37,4 +37,4 @@ At the moment, because we need the list of files from the webserver, AjaxCMS req
 ## Plans for the Future.
 We will continue development of the core of AjaxCMS as an open source project under the GPL v3 license. In order to support the development of AjaxCMS we plan to sell individual and site licences for the background animations and themes.  We also intend to develop a number of services that will allow functionality not possible in a purely client side system.  We hope that AJaxCMS is a tool that will make developing websites quicker, easier and more secure.  Let us know which direction you would like us to take to make this happen.
 
-If you have any questions or suggestions or would like to purchase a theme please contact me at <a href="mailto:brandon.hoult@softwyre.com">brandon.hoult@softwyre.com</a> The source code (install files) can be downloaded from https://github.com/bhoult/AjaxCMS.
+If you have any questions or suggestions or would like to purchase a theme please contact me at <a href="mailto:brandon.hoult@softwyre.com">brandon.hoult@softwyre.com</a> The source code (install files) can be downloaded from https://bitbucket.org/web-tec/ajax_cms/.
